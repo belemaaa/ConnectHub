@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Member
+from .models import Member, MemberProfile
 
 
 class MemberSignupSerializer(serializers.ModelSerializer):
@@ -11,3 +11,9 @@ class MemberSignupSerializer(serializers.ModelSerializer):
 class MemberLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemberProfile
+        fields = ['phone_number', 'location', 'bio']

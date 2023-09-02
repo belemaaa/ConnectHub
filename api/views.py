@@ -60,4 +60,17 @@ class Login(APIView):
 class Profile(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    pass
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.ProfileSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = request.user
+            member_profile, created = models.MemberProfile.objects.get_or_create(user=user)
+
+            member_profile.phone_number = serializer.validated_data.get('phone_number')
+            member_profile.location = serializer.validated_data.get('location')
+            member_profile.bio = serializer.validated_data.get('bio')
+
+            member_profile.save()
+            return Response({'message': 'Profile data created'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
