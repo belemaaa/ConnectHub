@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.authtoken.models import Token
 from .authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from .permissions import IsPostOwner
 from . import serializers
 from . import models
 
@@ -97,8 +98,8 @@ class Personal_profile(APIView):
     
 class Post(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    
+    permission_classes = [IsAuthenticated, IsPostOwner]
+
     def post(self, request):
         serializer = serializers.PostSerializer(data=request.data)
 
@@ -109,3 +110,11 @@ class Post(APIView):
                              'data': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk=None, *args, **kwargs):
+        try:
+            instance = models.Post.objects.get(pk=pk)
+            self.check_object_permissions(request, instance)
+            instance.delete()
+            return Response({'message': 'Post deleted successfully'}, status=status.HTTP_200_OK)
+        except models.Post.DoesNotExist:
+            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
