@@ -5,7 +5,7 @@ from .models import Member, MemberProfile
 class MemberSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['username', 'password', 'email', 'first_name', 'last_name']
+        fields = ['username', 'password', 'email']
 
 
 class MemberLoginSerializer(serializers.Serializer):
@@ -16,4 +16,4 @@ class MemberLoginSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemberProfile
-        fields = ['phone_number', 'location', 'bio']
+        fields = ['first_name', 'last_name', 'phone_number', 'location', 'bio']
