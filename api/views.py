@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import check_password
 from rest_framework.authtoken.models import Token
 from .authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from . import serializers
 from . import models
 
@@ -94,9 +94,4 @@ class Personal_profile(APIView):
             'bio': member_profile.bio
         }
         return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
-
-
-
-
-
 
