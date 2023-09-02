@@ -39,7 +39,6 @@ class Login(APIView):
     permission_classes = []
     def post(self, request, *args, **kwargs):
         serializer = serializers.MemberLoginSerializer(data=request.data)
-
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             password = serializer.validated_data.get('password')
@@ -62,7 +61,6 @@ class Personal_profile(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.ProfileSerializer(data=request.data)
-
         if serializer.is_valid():
             user = request.user
             member_profile, created = models.MemberProfile.objects.get_or_create(user=user)
@@ -74,9 +72,8 @@ class Personal_profile(APIView):
             member_profile.bio = serializer.validated_data.get('bio')
 
             member_profile.save()
-            return Response({'message': 'Profile data created' if created 
-                             else 
-                             'Profile data updated.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Profile data created' if created else 'Profile data updated.'}, 
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request):
