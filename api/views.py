@@ -20,7 +20,7 @@ class Signup(APIView):
             last_name = serializer.validated_data.get('last_name')
 
             user_exists = models.Member.objects.filter(username=username)
-            if user_exists():
+            if user_exists:
                 return Response({'error': 'user with this username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response({'message': 'signup successful'}, status=status.HTTP_201_CREATED)

@@ -8,6 +8,6 @@ class MemberSignupSerializer(serializers.ModelSerializer):
         fields = ['username', 'password', 'email', 'first_name', 'last_name']
 
 
-class MemberLoginSerializer(serializers.ModelSerializer):
+class MemberLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
