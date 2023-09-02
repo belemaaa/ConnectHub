@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password, check_password
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.authentication import authenticate
@@ -66,21 +67,39 @@ class Personal_profile(APIView):
             user = request.user
             member_profile, created = models.MemberProfile.objects.get_or_create(user=user)
 
-            member_profile.first_name = serializer.validated_data.get('first_name'),
+            member_profile.first_name = serializer.validated_data.get('first_name')
             member_profile.last_name = serializer.validated_data.get('last_name')
             member_profile.phone_number = serializer.validated_data.get('phone_number')
             member_profile.location = serializer.validated_data.get('location')
             member_profile.bio = serializer.validated_data.get('bio')
 
             member_profile.save()
-            return Response({'message': 'Profile data created',
-                             'profile data': {
-                                 'username': member_profile.user.username,
-                                 'email': member_profile.user.email,
-                                 'first_name': member_profile.first_name,
-                                 'last_name': member_profile.last_name,
-                                 'phone_number': member_profile.phone_number,
-                                 'location': member_profile.location,
-                                 'bio': member_profile.bio
-                             }}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Profile data created' if created 
+                             else 
+                             'Profile data updated.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request):
+        user = request.user
+        try:
+            member_profile = models.MemberProfile.objects.get(user=user)
+        except models.MemberProfile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        profile_data = {
+            'id': member_profile.user.id,
+            'username': member_profile.user.username,
+            'email': member_profile.user.email,
+            'first_name': member_profile.first_name,
+            'last_name': member_profile.last_name,
+            'phone_number': member_profile.phone_number,
+            'location': member_profile.location,
+            'bio': member_profile.bio
+        }
+        return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
+
+
+
+
+
+
