@@ -94,4 +94,18 @@ class Personal_profile(APIView):
             'bio': member_profile.bio
         }
         return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
+    
+class Post(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = serializers.PostSerializer(data=request.data)
+
+        if serializer.is_valid():
+            content = serializer.validated_data.get('content')
+            serializer.save(user=self.request.user)
+            return Response({'message': 'Post created successfully',
+                             'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
