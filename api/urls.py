@@ -8,4 +8,5 @@ urlpatterns = [
     path('profile/', views.Personal_profile.as_view()),
     path('post/add/', views.Post.as_view()),
     path('post/<int:pk>/delete', views.Post.as_view()),
+    path('posts/', views.Post.as_view()),
 ]

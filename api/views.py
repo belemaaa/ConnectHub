@@ -14,7 +14,6 @@ from . import serializers
 from . import models
 
 
-
 class Signup(APIView):
     authentication_classes = []
     permission_classes = []
@@ -118,3 +117,19 @@ class Post(APIView):
             return Response({'message': 'Post deleted successfully'}, status=status.HTTP_200_OK)
         except models.Post.DoesNotExist:
             return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    def get(self, request):
+        qs = models.Post.objects.all()
+        data = serializers.PostSerializer(qs, many=True).data
+        for post in data:
+            pass
+            # user_id = post.get('user')
+            # try:
+            #     user = models.Member.objects.get(id=user_id)
+            #     post['user_data'] = {
+            #         'username': user.username,
+            #         'content': data.content
+            #     }
+            # except models.Member.DoesNotExist:
+            #     return ""
+        return Response(data, status=status.HTTP_200_OK)
