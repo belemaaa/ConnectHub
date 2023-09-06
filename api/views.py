@@ -136,15 +136,23 @@ class UserProfileSearch(APIView):
     permission_classes = []
 
     def get(self, request):
-        search_query = self.request.query_params.get('search', None)
+        search_query = self.request.query_params.get('search_query', None)
         queryset = models.MemberProfile.objects.all()
-       
         if search_query:
             queryset = queryset.filter(
                 Q(user__username__icontains=search_query) |
                 Q(first_name__icontains=search_query) |
                 Q(last_name__icontains=search_query)
             )
+        user_posts = models.Post.objects.filter(user__memberprofile__in=queryset)
+
         serializer = serializers.ProfileSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        post_serializer = serializers.PostSerializer(user_posts, many=True)
+
+        data = {
+            'profile_data': serializer.data,
+            'posts': post_serializer.data
+        }
+        
+        return Response(data, status=status.HTTP_200_OK)
      
