@@ -83,6 +83,9 @@ class Personal_profile(APIView):
         except models.MemberProfile.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
         
+        user_posts = models.Post.objects.filter(user=user)
+        serializer = serializers.PostSerializer(user_posts, many=True)
+        
         profile_data = {
             'id': member_profile.user.id,
             'username': member_profile.user.username,
@@ -91,8 +94,10 @@ class Personal_profile(APIView):
             'last_name': member_profile.last_name,
             'phone_number': member_profile.phone_number,
             'location': member_profile.location,
-            'bio': member_profile.bio
+            'bio': member_profile.bio,
+            'posts': serializer.data
         }
+
         return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
     
 class Post(APIView):
@@ -118,18 +123,18 @@ class Post(APIView):
         except models.Post.DoesNotExist:
             return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
         
+        
     def get(self, request):
         qs = models.Post.objects.all()
         data = serializers.PostSerializer(qs, many=True).data
-        for post in data:
-            pass
-            # user_id = post.get('user')
-            # try:
-            #     user = models.Member.objects.get(id=user_id)
-            #     post['user_data'] = {
-            #         'username': user.username,
-            #         'content': data.content
-            #     }
-            # except models.Member.DoesNotExist:
-            #     return ""
+        # user = serializers.PostSerializer['user']
+
+        # user_data = {
+        #     'username': user.username,
+        #     'user_id': user.id,
+        #     'post': data
+        # }
+
         return Response(data, status=status.HTTP_200_OK)
+
+    
