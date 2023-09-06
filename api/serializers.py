@@ -19,6 +19,24 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'phone_number', 'location', 'bio']
 
 class PostSerializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
+
     class Meta:
         model = Post
-        fields = ['id', 'user', 'content', 'created_at']
+        fields = ['id', 'content', 'created_at', 'owner']
+
+    def get_owner(self, obj):
+        return {
+            'user_id': obj.user.id,
+            'username': obj.user.username,
+            'email': obj.user.email,
+            # 'first_name': obj.user.first_name,
+            # 'last_name': obj.user.last_name,
+            # 'phone_number': obj.user.memberprofile.phone_number,
+            # 'location': obj.user.memberprofile.location,
+            # 'bio': obj.user.memberprofile.bio
+        }
+
+
+
+

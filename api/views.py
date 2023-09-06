@@ -55,6 +55,7 @@ class Login(APIView):
         
         return Response({'error': 'user does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
     
+
 class Personal_profile(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -100,6 +101,7 @@ class Personal_profile(APIView):
 
         return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
     
+
 class Post(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsPostOwner]
@@ -127,14 +129,6 @@ class Post(APIView):
     def get(self, request):
         qs = models.Post.objects.all()
         data = serializers.PostSerializer(qs, many=True).data
-        # user = serializers.PostSerializer['user']
-
-        # user_data = {
-        #     'username': user.username,
-        #     'user_id': user.id,
-        #     'post': data
-        # }
 
         return Response(data, status=status.HTTP_200_OK)
-
     
