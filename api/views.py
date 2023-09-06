@@ -148,7 +148,6 @@ class UserProfileSearch(APIView):
 
         serializer = serializers.ProfileSerializer(queryset, many=True)
         post_serializer = serializers.PostSerializer(user_posts, many=True)
-
         data = {
             'profile_data': serializer.data,
             'posts': post_serializer.data
