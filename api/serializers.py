@@ -30,11 +30,11 @@ class PostSerializer(serializers.ModelSerializer):
             'user_id': obj.user.id,
             'username': obj.user.username,
             'email': obj.user.email,
-            # 'first_name': obj.user.first_name,
-            # 'last_name': obj.user.last_name,
-            # 'phone_number': obj.user.memberprofile.phone_number,
-            # 'location': obj.user.memberprofile.location,
-            # 'bio': obj.user.memberprofile.bio
+            'first_name': obj.user.memberprofile.first_name,
+            'last_name': obj.user.memberprofile.last_name,
+            'phone_number': obj.user.memberprofile.phone_number,
+            'location': obj.user.memberprofile.location,
+            'bio': obj.user.memberprofile.bio
         }
 
 
