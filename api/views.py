@@ -155,3 +155,15 @@ class UserProfileSearch(APIView):
         
         return Response(data, status=status.HTTP_200_OK)
      
+class Comment(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.CommentSerializer(data=request.data)
+
+        if serializer.is_valid():
+            comment = serializer.validated_data.get('comment')
+            serializer.save(user=self.request.user)
+            return Response({'message': 'comment created successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
