@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from .authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .permissions import IsPostOwner
+from django.db.models import Q
 from . import serializers
 from . import models
 
@@ -55,7 +56,6 @@ class Login(APIView):
         
         return Response({'error': 'user does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
     
-
 class Personal_profile(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -101,7 +101,6 @@ class Personal_profile(APIView):
 
         return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
     
-
 class Post(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsPostOwner]
@@ -132,3 +131,20 @@ class Post(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
     
+class UserProfileSearch(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        search_query = self.request.query_params.get('search', None)
+        queryset = models.MemberProfile.objects.all()
+       
+        if search_query:
+            queryset = queryset.filter(
+                Q(user__username__icontains=search_query) |
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query)
+            )
+        serializer = serializers.ProfileSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+     
