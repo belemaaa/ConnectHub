@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Member, MemberProfile, Post
+from .models import Member, MemberProfile, Post, Like, Comment
 
 
 class MemberSignupSerializer(serializers.ModelSerializer):
@@ -37,6 +37,12 @@ class PostSerializer(serializers.ModelSerializer):
             'bio': obj.user.memberprofile.bio
         }
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
 
-
-
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
