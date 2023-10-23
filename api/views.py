@@ -14,23 +14,19 @@ from django.db.models import Q
 from . import serializers
 from . import models
 
-
 class Signup(APIView):
     authentication_classes = []
     permission_classes = []
     def post(self, request, *args, **kwargs):
         serializer = serializers.MemberSignupSerializer(data=request.data)
-
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             raw_password = serializer.validated_data.get('password')
             email = serializer.validated_data.get('email')
-
             hashed_password = make_password(raw_password)
             user_exists = models.Member.objects.filter(username=username)
             if user_exists:
-                return Response({'error': 'user with this username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-            
+                return Response({'error': 'user with this username already exists.'}, status=status.HTTP_400_BAD_REQUEST) 
             serializer.save(password=hashed_password)
             return Response({'message': 'signup successful'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -47,13 +43,11 @@ class Login(APIView):
                 user = models.Member.objects.get(username=username)
             except models.Member.DoesNotExist:
                 user = None
-
             if user is not None and check_password(password, user.password):
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({'message': 'login successful',
                                  'access_token': token.key}, status=status.HTTP_200_OK)    
             return Response({'error': 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        
         return Response({'error': 'user does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
     
 class Personal_profile(APIView):
@@ -71,7 +65,6 @@ class Personal_profile(APIView):
             member_profile.phone_number = serializer.validated_data.get('phone_number')
             member_profile.location = serializer.validated_data.get('location')
             member_profile.bio = serializer.validated_data.get('bio')
-
             member_profile.save()
             return Response({'message': 'Profile data created' if created else 'Profile data updated.'}, 
                             status=status.HTTP_201_CREATED)
@@ -85,8 +78,7 @@ class Personal_profile(APIView):
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
         
         user_posts = models.Post.objects.filter(user=user)
-        serializer = serializers.PostSerializer(user_posts, many=True)
-        
+        serializer = serializers.PostSerializer(user_posts, many=True) 
         profile_data = {
             'id': member_profile.user.id,
             'username': member_profile.user.username,
@@ -98,16 +90,13 @@ class Personal_profile(APIView):
             'bio': member_profile.bio,
             'posts': serializer.data
         }
-
         return Response({'profile_data': profile_data}, status=status.HTTP_200_OK)
     
 class Post(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsPostOwner]
-
     def post(self, request):
         serializer = serializers.PostSerializer(data=request.data)
-
         if serializer.is_valid():
             content = serializer.validated_data.get('content')
             serializer.save(user=self.request.user)
@@ -123,18 +112,15 @@ class Post(APIView):
             return Response({'message': 'Post deleted successfully'}, status=status.HTTP_200_OK)
         except models.Post.DoesNotExist:
             return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        
+             
     def get(self, request):
         qs = models.Post.objects.all()
         data = serializers.PostSerializer(qs, many=True).data
-
         return Response(data, status=status.HTTP_200_OK)
     
 class UserProfileSearch(APIView):
     authentication_classes = []
     permission_classes = []
-
     def get(self, request):
         search_query = self.request.query_params.get('search_query', None)
         queryset = models.MemberProfile.objects.all()
@@ -145,25 +131,27 @@ class UserProfileSearch(APIView):
                 Q(last_name__icontains=search_query)
             )
         user_posts = models.Post.objects.filter(user__memberprofile__in=queryset)
-
         serializer = serializers.ProfileSerializer(queryset, many=True)
         post_serializer = serializers.PostSerializer(user_posts, many=True)
         data = {
             'profile_data': serializer.data,
             'posts': post_serializer.data
-        }
-        
+        }   
         return Response(data, status=status.HTTP_200_OK)
      
 class Comment(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    def post(self, request, post_id):
+        try:
+            post = models.Post.objects.get(pk=post_id)
+        except models.Post.DoesNotExist:
+            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request, *args, **kwargs):
         serializer = serializers.CommentSerializer(data=request.data)
 
         if serializer.is_valid():
-            comment = serializer.validated_data.get('comment')
-            serializer.save(user=self.request.user)
-            return Response({'message': 'comment created successfully'}, status=status.HTTP_201_CREATED)
+            comment_text = serializer.validated_data.get('comment')
+            comment = models.Comment.objects.create(user=self.request.user, post=post, text=comment_text)
+            return Response({'message': 'Comment created successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
